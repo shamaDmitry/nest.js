@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Controller('books')
 export class BooksController {
@@ -21,22 +26,26 @@ export class BooksController {
   }
 
   @Get()
-  findAll() {
-    return this.booksService.findAll();
+  findAll(@Query() paginationQuery: PaginationQueryDto) {
+    return this.booksService.findAll(paginationQuery);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.booksService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.booksService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-    return this.booksService.update(+id, updateBookDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateBookDto: UpdateBookDto,
+  ) {
+    return this.booksService.update(id, updateBookDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.booksService.remove(+id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.booksService.remove(id);
   }
 }
