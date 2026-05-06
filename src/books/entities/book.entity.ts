@@ -3,17 +3,17 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 @Entity()
 export class Book {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  title: string;
+  title!: string;
 
   @Column()
-  author: string;
+  author!: string;
 
   @Column()
-  description: string;
+  description!: string;
 
   @Column()
-  publishedYear: number;
+  publishedYear!: number;
 }

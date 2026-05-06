@@ -3,18 +3,18 @@ import { IsInt, IsNotEmpty, IsString, Min, Max } from 'class-validator';
 export class CreateBookDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  author: string;
+  author!: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsInt()
   @Min(1000)
   @Max(new Date().getFullYear())
-  publishedYear: number;
+  publishedYear!: number;
 }

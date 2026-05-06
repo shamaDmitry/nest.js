@@ -15,6 +15,7 @@ export class BooksService {
 
   async create(createBookDto: CreateBookDto): Promise<Book> {
     const newBook = this.bookRepository.create(createBookDto);
+
     return await this.bookRepository.save(newBook);
   }
 
@@ -22,6 +23,7 @@ export class BooksService {
     const { limit = 10, offset = 0 } = paginationQuery;
 
     const [data, totalEntities] = await this.bookRepository.findAndCount({
+      order: { id: 'ASC' },
       skip: offset,
       take: limit,
     });
@@ -45,9 +47,11 @@ export class BooksService {
 
   async findOne(id: number): Promise<Book> {
     const book = await this.bookRepository.findOneBy({ id });
+
     if (!book) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
+
     return book;
   }
 
@@ -67,5 +71,9 @@ export class BooksService {
   async remove(id: number): Promise<void> {
     const book = await this.findOne(id);
     await this.bookRepository.remove(book);
+  }
+
+  async removeBatch(ids: number[]): Promise<void> {
+    await this.bookRepository.delete(ids);
   }
 }

@@ -15,6 +15,7 @@ import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { DeleteBooksDto } from './dto/delete-books.dto';
 
 @Controller('books')
 export class BooksController {
@@ -41,6 +42,12 @@ export class BooksController {
     @Body() updateBookDto: UpdateBookDto,
   ) {
     return await this.booksService.update(id, updateBookDto);
+  }
+
+  @Delete('batch')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeBatch(@Body() deleteBooksDto: DeleteBooksDto) {
+    return await this.booksService.removeBatch(deleteBooksDto.ids);
   }
 
   @Delete(':id')
