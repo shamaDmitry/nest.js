@@ -1,0 +1,50 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run start:dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_SYNCHRONIZE=true
+      - NODE_ENV=development
+      - PORT=3000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nest-network
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nest-network
+
+networks:
+  nest-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

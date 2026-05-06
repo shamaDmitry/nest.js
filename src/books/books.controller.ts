@@ -21,31 +21,31 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
-  create(@Body() createBookDto: CreateBookDto) {
-    return this.booksService.create(createBookDto);
+  async create(@Body() createBookDto: CreateBookDto) {
+    return await this.booksService.create(createBookDto);
   }
 
   @Get()
-  findAll(@Query() paginationQuery: PaginationQueryDto) {
-    return this.booksService.findAll(paginationQuery);
+  async findAll(@Query() paginationQuery: PaginationQueryDto) {
+    return await this.booksService.findAll(paginationQuery);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.booksService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.booksService.findOne(id);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBookDto: UpdateBookDto,
   ) {
-    return this.booksService.update(id, updateBookDto);
+    return await this.booksService.update(id, updateBookDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.booksService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.booksService.remove(id);
   }
 }
