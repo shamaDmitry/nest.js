@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
@@ -20,16 +20,18 @@ export class BooksService {
   }
 
   async findAll(paginationQuery: PaginationQueryDto) {
-    const { limit = 10, offset = 0 } = paginationQuery;
+    const { limit = 10, offset = 0, page } = paginationQuery;
+
+    // Calculate skip: page takes precedence over offset
+    const skip = page ? (page - 1) * limit : offset;
 
     const [data, totalEntities] = await this.bookRepository.findAndCount({
-      order: { id: 'ASC' },
-      skip: offset,
+      skip,
       take: limit,
     });
 
     const totalPages = Math.ceil(totalEntities / limit);
-    const currentPage = Math.floor(offset / limit) + 1;
+    const currentPage = page || Math.floor(skip / limit) + 1;
 
     return {
       data,
@@ -70,10 +72,25 @@ export class BooksService {
 
   async remove(id: number): Promise<void> {
     const book = await this.findOne(id);
+
     await this.bookRepository.remove(book);
   }
 
   async removeBatch(ids: number[]): Promise<void> {
+    const foundBooks = await this.bookRepository.findBy({
+      id: In(ids),
+    });
+
+    if (foundBooks.length !== ids.length) {
+      const foundIds = foundBooks.map((book) => book.id);
+
+      const missingIds = ids.filter((id) => !foundIds.includes(id));
+
+      throw new NotFoundException(
+        `Books with IDs ${missingIds.join(', ')} not found`,
+      );
+    }
+
     await this.bookRepository.delete(ids);
   }
 }

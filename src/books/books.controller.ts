@@ -7,8 +7,6 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  HttpCode,
-  HttpStatus,
   Query,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
@@ -45,14 +43,22 @@ export class BooksController {
   }
 
   @Delete('batch')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async removeBatch(@Body() deleteBooksDto: DeleteBooksDto) {
-    return await this.booksService.removeBatch(deleteBooksDto.ids);
+    await this.booksService.removeBatch(deleteBooksDto.ids);
+
+    return {
+      message: 'Books deleted successfully',
+      deletedIds: deleteBooksDto.ids,
+      count: deleteBooksDto.ids.length,
+    };
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.booksService.remove(id);
+    await this.booksService.remove(id);
+
+    return {
+      message: `Book with ID ${id} deleted successfully`,
+    };
   }
 }
