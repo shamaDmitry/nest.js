@@ -4,7 +4,8 @@ import { Repository, In } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { SearchQueryDto } from '../common/dto/search-query.dto';
+import { QueryHelper } from '../common/utils/query-helper.util';
 
 @Injectable()
 export class BooksService {
@@ -19,19 +20,29 @@ export class BooksService {
     return await this.bookRepository.save(newBook);
   }
 
-  async findAll(paginationQuery: PaginationQueryDto) {
-    const { limit = 10, offset = 0, page } = paginationQuery;
+  async findAll(queryDto: SearchQueryDto) {
+    const queryBuilder = this.bookRepository.createQueryBuilder('book');
+    const searchableFields = [
+      'title',
+      'author',
+      'description',
+      'publishedYear',
+    ];
 
-    // Calculate skip: page takes precedence over offset
-    const skip = page ? (page - 1) * limit : offset;
+    QueryHelper.applySearchAndFilters(
+      queryBuilder,
+      queryDto,
+      searchableFields,
+      'book',
+      'id',
+    );
 
-    const [data, totalEntities] = await this.bookRepository.findAndCount({
-      skip,
-      take: limit,
-    });
+    const [data, totalEntities] = await queryBuilder.getManyAndCount();
 
+    const limit = queryDto.limit || 10;
     const totalPages = Math.ceil(totalEntities / limit);
-    const currentPage = page || Math.floor(skip / limit) + 1;
+    const currentPage =
+      queryDto.page || Math.floor((queryDto.offset || 0) / limit) + 1;
 
     return {
       data,

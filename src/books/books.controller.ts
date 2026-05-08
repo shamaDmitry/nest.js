@@ -12,7 +12,7 @@ import {
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { SearchQueryDto } from '../common/dto/search-query.dto';
 import { DeleteBooksDto } from './dto/delete-books.dto';
 
 @Controller('books')
@@ -25,8 +25,8 @@ export class BooksController {
   }
 
   @Get()
-  async findAll(@Query() paginationQuery: PaginationQueryDto) {
-    return await this.booksService.findAll(paginationQuery);
+  async findAll(@Query() queryDto: SearchQueryDto) {
+    return await this.booksService.findAll(queryDto);
   }
 
   @Get(':id')
