@@ -21,6 +21,10 @@ import { BooksModule } from './books/books.module';
       synchronize:
         process.env.DATABASE_SYNCHRONIZE === 'true' ||
         process.env.NODE_ENV !== 'production',
+      ssl:
+        process.env.DATABASE_SSL === 'true'
+          ? { rejectUnauthorized: false }
+          : false,
     }),
     BooksModule,
   ],
